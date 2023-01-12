@@ -17,38 +17,41 @@ animations_menu.Closed = function()
     ClearPedTasksImmediately(GetPlayerPed(-1))
     inAnim = false
     previousAnim = nil
+    index = 1
 end
 
+local index = 1
 local animation_list = {}
+local animation_list_page = {}
+local all_indexes = {}
+local max_pages = 0
+local path_to_animations = "animDictsCompact.json"
 
-local path_to_animations = "animations.txt"
+-- Create a thread to load the animations
 
--- Read the text file containing the animation list
-local fileText = LoadResourceFile(GetCurrentResourceName(), path_to_animations)
-if fileText then
-    local currentCategory = nil
-    local currentIndent = 0
-    for line in string.gmatch(fileText, "[^\r\n]+") do
-        -- Check the indentation level of the current line
-        local newIndent = string.match(line, "^(%s+)")
-        if newIndent then
-            newIndent = #newIndent
-        else
-            newIndent = 0
-        end
-        -- Compare the indentation level to the previous line
-        -- If the indentation level is 0, it's a new category
-        if newIndent == 0 then
-            currentCategory = line
-            animation_list[currentCategory] = {}
-        else
-            -- remove the indent space before the animation name
-            line = string.sub(line, newIndent + 1)
-            -- this is an animation of the current category
-            table.insert(animation_list[currentCategory], line)
+Citizen.CreateThread(function()
+    local fileJson = LoadResourceFile(GetCurrentResourceName(), path_to_animations)
+    if fileJson then
+        animation_list = json.decode(fileJson)
+    end
+
+    for k, v in pairs(animation_list) do
+        if not DoesAnimDictExist(v.DictionaryName) then
+            table.remove(animation_list, k)
         end
     end
-end
+    max_pages = math.ceil(#animation_list / 8)
+    for i = 1, max_pages do
+        local page = {}
+        for k = (i - 1) * 8 + 1, i * 8 do
+            if animation_list[k] then
+                table.insert(page, animation_list[k])
+            end
+        end
+        table.insert(animation_list_page, page)
+        table.insert(all_indexes, i)
+    end
+end)
 
 RegisterCommand("animations", function()
     OpenAnimationsMenu()
@@ -61,6 +64,7 @@ function OpenAnimationsMenu()
         ClearPedTasksImmediately(GetPlayerPed(-1))
         inAnim = false
         previousAnim = nil
+        index = 1
         return
     else
         open = true
@@ -75,31 +79,43 @@ function OpenAnimationsMenu()
                             if result then
                                 -- when the search is done, display all the results in a list
                                 results = {}
-                                -- for each sublist, check if any result
+                                -- for each dict, check if the search is in the animations names
                                 for k, v in pairs(animation_list) do
-                                    for k2, v2 in pairs(v) do
+                                    for k2, v2 in pairs(v.Animations) do
                                         if string.find(string.lower(v2), string.lower(result)) then
-                                            table.insert(results, { k, v2 })
+                                            table.insert(results, { v.DictionaryName, v2 })
                                         end
                                     end
                                 end
                             end
                         end
                     }, results_menu)
-                    -- add a button for each animation
-                    for k, v in pairs(animation_list) do
-                        RageUI.Button(k, nil, { RightLabel = "→→→" }, true, {
+                    -- add a button for each page
+                    for k, v in pairs(animation_list_page[index]) do
+                        RageUI.Button(v.DictionaryName, nil, { RightLabel = ">" }, true, {
                             onSelected = function()
+                                -- when the button is selected, display all the animations of the dictionary
                                 dict = k
                             end
                         }, dict_menu)
                     end
+                    RageUI.List("Page", all_indexes, index, nil, {}, true, {
+                        onListChange = function(Index)
+                            index = Index
+                        end,
+                        onSelected = function()
+                            local result = KeyboardInput("Page number")
+                            if result and tonumber(result) and tonumber(result) <= max_pages and tonumber(result) > 0 then
+                                index = tonumber(result)
+                            end
+                        end
+                    })
                 end)
                 RageUI.IsVisible(results_menu, function()
                     -- add a button for each result
                     if #results > 0 then
                         for k, v in pairs(results) do
-                            RageUI.Button(v[2], nil, { RightLabel = "→→→" }, true, {
+                            RageUI.Button(v[2], nil, { RightLabel = ">" }, true, {
                                 onSelected = function()
                                     -- when the button is selected, play the animation
                                     PlayAnimation(v[1], v[2])
@@ -112,16 +128,15 @@ function OpenAnimationsMenu()
                 end)
                 RageUI.IsVisible(dict_menu, function()
                     -- set the menu subtitle to the current dictionary
-                    if animation_list[dict] then
-                        -- add a button for each animation
-                        for k, v in pairs(animation_list[dict]) do
-                            RageUI.Button(v, nil, { RightLabel = "→→→" }, true, {
-                                onSelected = function()
-                                    -- when the button isselected, play the animation
-                                    PlayAnimation(dict, v)
-                                end
-                            })
-                        end
+                    dict_menu.Subtitle = animation_list_page[index][dict].DictionaryName
+                    -- add a button for each animation of the dictionary
+                    for k, v in pairs(animation_list_page[index][dict].Animations) do
+                        RageUI.Button(v, nil, { RightLabel = "→→→" }, true, {
+                            onSelected = function()
+                                -- when the button is selected, play the animation
+                                PlayAnimation(animation_list_page[index][dict].DictionaryName, v)
+                            end
+                        })
                     end
                 end)
                 Wait(0)
@@ -132,10 +147,10 @@ end
 
 
 function PlayAnimation(dict, anim)
-    if inAnim and anim == previousAnim then
-        inAnim = false
+    if inAnim and tostring(anim) == tostring(previousAnim) then
         ClearPedTasksImmediately(GetPlayerPed(-1))
-    elseif inAnim and anim ~= previousAnim then
+        inAnim = false
+    elseif inAnim then
         ClearPedTasksImmediately(GetPlayerPed(-1))
         local player = GetPlayerPed(-1)
         -- load the animation

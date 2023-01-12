@@ -6,7 +6,7 @@ description "Developer script to play every GTA animations"
 author "Mathu_lmn"
 version "1.0.0"
 
-files {'animations.txt'}
+files {'animDictsCompact.json'}
 
 client_scripts {
     'RageUI/RMenu.lua',
