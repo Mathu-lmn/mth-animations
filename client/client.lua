@@ -53,7 +53,8 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterCommand("animations", function()
+
+RegisterNetEvent('mth-animations:menu', function()
     OpenAnimationsMenu()
 end)
 
