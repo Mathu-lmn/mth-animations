@@ -4,9 +4,11 @@ game 'gta5'
 name "mth-animations"
 description "Developer script to play every GTA animations"
 author "Mathu_lmn"
-version "1.0.0"
+version "1.1.0"
 
-files {'animDictsCompact.json'}
+files {
+    'animDictsCompact.json'
+}
 
 client_scripts {
     'RageUI/RMenu.lua',
@@ -18,5 +20,13 @@ client_scripts {
     'RageUI/menu/items/*.lua',
     'RageUI/menu/panels/*.lua',
     'RageUI/menu/windows/*.lua',
-    'client.lua',
+    'client/*.lua',
 }
+
+server_scripts {
+    'server/*.lua',
+}
+
+shared_script {
+    'config.lua',
+  }
