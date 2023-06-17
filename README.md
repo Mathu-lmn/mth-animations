@@ -1,6 +1,11 @@
 # Description 📃 :
 
-👋 Hey guys, I've always wanted to easily test the animations in Fivem and I never really found the script that fits for what I want. So I decided to make my own and today I'm releasing it for free !
+👋 Hey guys, I've always wanted to easily test the animations in FiveM and I never really found the script that fits the purpose, so I decided to make my own and today I'm releasing it for free!
+
+This script has been updated for gamebuild mp2023_01 / b2944 / San Andreas Mercenaries thanks to [TayMcKenzieNZ](https://github.com/TayMcKenzieNZ) for the pull request.
+
+Animations found by [DurtyFree](https://github.com/DurtyFree/gta-v-data-dumps) gta v data dumps. 
+
 
 ---
 ## Usage 🛠️ :
