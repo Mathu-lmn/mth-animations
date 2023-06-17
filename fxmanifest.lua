@@ -1,10 +1,10 @@
-fx_version 'adamant'
+fx_version 'cerulean'
 game 'gta5'
 
 name "mth-animations"
 description "Developer script to play every GTA animations"
 author "Mathu_lmn"
-version "1.1.0"
+version "1.1.1"
 
 files {
     'animDictsCompact.json'
