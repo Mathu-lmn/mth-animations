@@ -36,8 +36,5 @@ Config.AdminOnly = false
 
 🎥 [Video](https://streamable.com/yfl6us): https://streamable.com/yfl6us
 
-**Link to the resource :** [mathu-lmn/mth-animations (github.com)](https://github.com/Mathu-lmn/mth-animations)
 
 Feel free to open an Issue or make a PR to help me improve this resource !
-
-*PS : I used this file to get the animations list so huge thanks to @DurtyFree : [gta-v-data-dumps](https://github.com/DurtyFree/gta-v-data-dumps)*
