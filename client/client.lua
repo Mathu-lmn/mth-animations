@@ -116,7 +116,7 @@ function OpenAnimationsMenu()
                     -- add a button for each result
                     if #results > 0 then
                         for k, v in pairs(results) do
-                            RageUI.Button(v[2], nil, { RightLabel = ">" }, true, {
+                            RageUI.Button(v[2], "DictionaryName : " .. v[1], { RightLabel = ">" }, true, {
                                 onSelected = function()
                                     -- when the button is selected, play the animation
                                     PlayAnimation(v[1], v[2])
